@@ -138,7 +138,6 @@ def load_ml_model() -> Optional[object]:
 
 def render_predict(load_model_fn: Optional[Callable[[], object]] = None, predict_fn: Optional[Callable[[Mapping[str, Any]], dict]] = None) -> None:
     """Renderiza o formulário de predição (Streamlit)."""
-    st.header('Informações do modelo')
     col1 = st.columns(1)[0]
 
     # -----------------------------
@@ -153,91 +152,8 @@ def render_predict(load_model_fn: Optional[Callable[[], object]] = None, predict
         if model_files:
             xgb_files = [f for f in model_files if 'xgb' in f.lower()]
             model_file = os.path.basename(xgb_files[0] if xgb_files else model_files[0])
-    if model_file:
-        col1.metric(f"Modelo usado:", f"{model_file}")
-    else:
-        st.write("**Modelo usado:** Nenhum modelo encontrado")
 
-    st.subheader('Métricas da Predição')
-    col1, col2, col3 = st.columns(3)
 
-    # Calcular métricas no conjunto de validação salvo (data/df_model_final.csv)
-    try:
-        import pandas as pd
-        from sklearn.metrics import accuracy_score, recall_score, f1_score
-
-        data_path = os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'df_model_final.csv')
-        if not os.path.exists(data_path):
-            st.info('Arquivo de validação não encontrado: data/df_model_final.csv')
-        else:
-            df_val = pd.read_csv(data_path)
-            if 'target_obesidade' not in df_val.columns:
-                st.info('Arquivo de validação não contém a coluna `target_obesidade`.')
-            else:
-                X_val = df_val.drop(columns=['target_obesidade'])
-                y_val = df_val['target_obesidade']
-
-                model_obj = load_ml_model()
-                if model_obj is None:
-                    st.info('Nenhum modelo carregado para calcular métricas.')
-                else:
-                    try:
-                        FEATURE_MAPPING = {
-                            "hist_familiar_obes": "family_history",
-                            "cons_altas_cal_freq": "high_calorie_food",
-                            "cons_verduras": "vegetable_consumption",
-                            "refeicoes_principais_dia": "main_meals_per_day",
-                            "lancha_entre_ref_bin": "snacks_between_meals",
-                            "fuma": "smokes",
-                            "agua_dia": "water_intake",
-                            "controle_calorias": "calorie_monitoring",
-                            "ativ_fisica_bin": "physical_activity",
-                            "uso_tecnologia": "screen_time",
-                            "cons_alcool_bin": "alcohol_consumption",
-                            "transporte_bin": "transportation" 
-                        }
-                        
-                        X_val = X_val.rename(columns=FEATURE_MAPPING)
-
-                        # garante que todas as colunas existem
-                        EXPECTED_COLUMNS = [
-                            'gender','age','height','weight','family_history',
-                            'high_calorie_food','vegetable_consumption',
-                            'main_meals_per_day','snacks_between_meals','smokes',
-                            'water_intake','calorie_monitoring','physical_activity',
-                            'screen_time','alcohol_consumption','transportation'
-                        ]
-
-                        # evita erro se faltar coluna
-                        for col in EXPECTED_COLUMNS:
-                            if col not in X_val.columns:
-                                X_val[col] = 0
-
-                        # ordena corretamente
-                        X_val = X_val[EXPECTED_COLUMNS]
-
-                        # AGORA FUNCIONA
-                        y_pred = model_obj.predict(X_val)
-                        
-                        # Tentar métricas binárias; se falhar (por exemplo multiclasses), usar média ponderada
-                        try:
-                            recall = recall_score(y_val, y_pred)
-                            f1 = f1_score(y_val, y_pred)
-                        except Exception:
-                            recall = recall_score(y_val, y_pred, average='weighted')
-                            f1 = f1_score(y_val, y_pred, average='weighted')
-
-                        acc = accuracy_score(y_val, y_pred)
-                    except Exception as e:
-                        st.error(f"Erro ao calcular métricas: {e}")
-    except Exception as e:
-        st.error(f"Erro ao preparar métricas: {e}")
-
-    col1.metric("Accuracy", f"{acc:.2%}")
-    
-    col2.metric("Recall", f"{recall:.2%}")
-
-    col3.metric("F1-score", f"{f1:.2%}")
 
     st.header('Formulário de triagem')
     # If no predictor function provided, load the model from default location
@@ -303,21 +219,34 @@ def render_predict(load_model_fn: Optional[Callable[[], object]] = None, predict
             st.error("O campo Nome é obrigatório.")
             return
 
+        gender_display = st.selectbox('Gênero', ['Masculino', 'Feminino'])
+        gender = 'Male' if gender_display == 'Masculino' else 'Female'
+
+        age = st.number_input('Idade', min_value=1, max_value=120, value=25)
+
+        height = st.number_input('Altura (m)', min_value=1.0, max_value=2.5, value=1.70)
+
+        weight = st.number_input('Peso (kg)', min_value=30.0, max_value=200.0, value=70.0)
+
         inputs = {
-            'Nome': nome,
+            'gender': gender,
+            'age': age,
+            'height': height,
+            'weight': weight,
             'family_history': family_history,
-            'FAVC': FAVC,
-            'FCVC': FCVC,
-            'NCP': NCP,
-            'CAEC': CAEC,
-            'SMOKE': SMOKE,
-            'CH2O': CH2O,
-            'SCC': SCC,
-            'FAF': FAF,
-            'TUE': TUE,
-            'CALC': CALC,
-            'MTRANS': MTRANS
+            'high_calorie_food': FAVC,
+            'vegetable_consumption': FCVC,
+            'main_meals_per_day': NCP,
+            'snacks_between_meals': CAEC,
+            'smokes': SMOKE,
+            'water_intake': CH2O,
+            'calorie_monitoring': SCC,
+            'physical_activity': FAF,
+            'screen_time': TUE,
+            'alcohol_consumption': CALC,
+            'transportation': MTRANS
         }
+        
 
         result = predict_fn(inputs)
 
