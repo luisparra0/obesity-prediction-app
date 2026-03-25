@@ -1,184 +1,130 @@
-# fiap-tech4 ✅
+#  Obesity Risk Prediction App
 
-## Descrição
+Machine Learning application for preventive obesity risk assessment, built with XGBoost and deployed through an interactive Streamlit dashboard.
 
-**fiap-tech4** é um projeto desenvolvido para a Tech Challenger (Fase 4) que utiliza Machine Learning para prever indícios de obesidade a partir de características sociodemográficas e comportamentais. A aplicação principal é uma interface Streamlit com páginas para exploração, predição, histórico e geração de PDFs de relatório.
-
----
-
-## Sumário
-
-- 📌 **Status**: Pronto para entrega
-- 🚀 **Tecnologias**: Python, Streamlit, scikit-learn, XGBoost, Joblib
-- 📁 **Dados**: `data/Obesity.csv`, `data/df_model_final.csv`
-- 🧠 **Modelos**: `src/models/*.joblib`
+The system allows healthcare professionals to evaluate patient risk, track history, and explore data insights in a simple and intuitive interface.
 
 ---
 
-## Funcionalidades principais ✨
+##  Application Preview
 
-- Interface web com páginas: **Home**, **Prever**, **Historico**, **Sobre**
-- Predição de risco de obesidade com modelos treinados (`RandomForest`, `XGBoost`)
-- Geração de relatórios em PDF com suporte a acentuação (quando houver fonte TTF disponível)
-- Pipeline de treinamento e funções de produção (`src/models/train_pipeline.py`, `src/models/production_pipeline.py`)
+###  Home
+![Home](assets/images/home.png)
 
----
+###  Prediction (Triage Form)
+![Prediction](assets/images/predict.png)
 
-## Estrutura do repositório 🔧
+###  Patient History
+![History](assets/images/history.png)
 
-- `src/` – código-fonte da aplicação
-  - `app.py` – ponto de entrada do Streamlit
-  - `1_dash.py` – dashboard auxiliar
-  - `models/` – pipelines de treino e modelos serializados (`.joblib`)
-  - `pages/` – telas do Streamlit (Home, Prever, Histórico, Sobre)
-  - `utils/` – utilitários (conexão, plots, scripts auxiliares)
-- `data/` – datasets usados no projeto (`Obesity.csv`, `df_model_final.csv`)
-- `README.md` – documentação (este arquivo)
-- `pyproject.toml` / `requirements.txt` – dependências
+###  Dashboard (EDA)
+![Dashboard](assets/images/dashboards.png)
 
 ---
 
-## Pré-requisitos ✅
+##  Business Value
 
-- Python 3.11+ (o projeto declara compatibilidade com >=3.11)
-- Recomenda-se criar um ambiente virtual (venv/conda/poetry)
-
----
-
-## Instalação e execução 🚀
-
-### Com pip
-
-1. Criar e ativar um ambiente virtual
-   ```bash
-   python -m venv .venv
-   source .venv/bin/activate  # Linux / macOS
-   .\.venv\Scripts\Activate  # Windows (PowerShell/CMD)
-   ```
-2. Instalar dependências
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Rodar a aplicação Streamlit
-   ```bash
-   streamlit run src/app.py
-   ```
-
-### Com Poetry
-
-1. Instalar dependências
-   ```bash
-   poetry install
-   ```
-2. Executar app (script configurado em `pyproject.toml`)
-   ```bash
-   poetry run app
-   ```
-
-> Dica: existe o utilitário `src/utils/run_streamlit.py` que programa a execução via API do Streamlit (útil para deploys e testes automatizados).
+- Supports early identification of obesity risk  
+- Helps healthcare professionals with decision-making  
+- Generates automated patient risk evaluations  
+- Enables historical tracking of patient records  
+- Provides data-driven insights through dashboards  
 
 ---
 
-## Uso da API de produção (exemplo) 🧩
+## ⚙️ How to Run
 
-Você pode carregar um modelo e rodar uma previsão programaticamente usando `src/models/production_pipeline.py`:
+```bash
+git clone https://github.com/luisparra0/obesity-prediction-app.git
+cd obesity-prediction-app
 
-```python
-from src.models.production_pipeline import load_model, predict_from_input
+python -m venv venv
+venv\Scripts\activate
 
-model = load_model('src/models/random_forest_final.joblib')
+pip install -r requirements.txt
 
-input_example = {
-    'Gender': 'Male',
-    'Age': 25,
-    'Height': 1.75,
-    'Weight': 70,
-    'family_history': 'yes',
-    'FAVC': 'no',
-    'FCVC': 2,
-    'NCP': 3,
-    'CAEC': 'Sometimes',
-    'SMOKE': 'no',
-    'CH2O': 2,
-    'SCC': 'no',
-    'FAF': 1,
-    'TUE': 2,
-    'CALC': 'no',
-    'MTRANS': 'Public_Transportation'
-}
-
-resultado = predict_from_input(model, input_example)
-print(resultado)
+streamlit run src/app.py
 ```
 
 ---
 
-## Treinamento / Reprodutibilidade 🔁
+## 🛠️ Tech Stack
 
-O pipeline de treino está em `src/models/train_pipeline.py`. Para reproduzir um treino simples:
+- Python  
+- Pandas  
+- NumPy  
+- Scikit-learn  
+- XGBoost  
+- Streamlit  
+- Matplotlib  
+- Seaborn  
 
-1. Carregue os dados em `data/` e prepare `X`/`y` conforme utilizado no projeto.
-2. Importe `train_model` e passe o estimador desejado (ex.: `RandomForestClassifier`).
+---
 
-Exemplo mínimo:
+##  Model
 
-```python
-from src.models.train_pipeline import train_model
-from sklearn.ensemble import RandomForestClassifier
+- Algorithm: XGBoost Classifier  
+- Task: Obesity Risk Classification  
+- Performance (Notebook):
+  - Accuracy ≈ 96%  
+  - Cross-validation applied  
 
-clf, metrics, splits = train_model(X, y, RandomForestClassifier(n_estimators=100), save_model=True, model_name='random_forest_final')
+---
+
+##  Project Structure
+
+```bash
+obesity-prediction-app/
+
+├── src/
+│   ├── app.py
+│   ├── pages/
+│   ├── models/
+│   └── shared/
+│
+├── data/
+├── notebook/
+├── assets/
+│   └── images/
+│
+├── requirements.txt
+├── README.md
+└── .gitignore
 ```
 
 ---
 
-## Validação e métricas 📊
+##  Features
 
-- Métricas computadas no pipeline: **accuracy**, **f1_score**, **recall**, **precision**, **confusion_matrix** e **classification_report**.
-- Testes manuais recomendados: executar a página `Prever`, gerar PDFs e comparar previsões com subconjunto conhecido.
-
----
-
-## Dados 🗄️
-
-Principais arquivos de dados:
-
-- `data/Obesity.csv` — dataset original com atributos demográficos e comportamentais
-- `data/df_model_final.csv` — versão processada utilizada para treino/avaliação
-
-> Atenção: dados podem conter colunas categóricas codificadas (veja `src/models/production_pipeline.py` para mapeamentos usados em produção).
+- Interactive triage form  
+- Real-time ML prediction  
+- Exploratory data analysis (EDA)  
+- Patient history tracking (SQLite)  
+- CSV export functionality  
+- Clean and intuitive UI  
 
 ---
 
-## Boas práticas para entrega final ✅
+##  How It Works
 
-- Verifique se `requirements.txt` ou `pyproject.toml` contém todas as dependências.
-- Confirme que `src/models/*.joblib` estão atualizados e funcionais.
-- Teste a geração de PDF em uma máquina Windows (verifique fonte TTF para acentuação).
-- Atualize este README com quaisquer instruções específicas de deploy se for necessário (Docker/Kubernetes).
-
----
-
-## Contribuição e contato 🤝
-
-- Autor: **grupo-tech-data-analytics-fiap** — ``
-- Para dúvidas sobre o projeto, execução ou entrega final, envie um e-mail com o assunto: **[fiap-tech4] Dúvida / Entrega**.
+1. User fills in patient information in the Predict tab  
+2. The trained XGBoost model generates a prediction  
+3. The result is stored in a local database  
+4. Data can be explored in:
+   - History tab  
+   - Dashboard (EDA)  
 
 ---
 
-## Licença
+## ⚠️ Notes
 
-Licença não especificada. Para uso, distribuição ou publicação consulte o autor responsável pelo repositório.
-
----
-
-## Checklist de entrega final 🧾
-
-- [ ] Código funcional (rodar `streamlit run src/app.py`)
-- [ ] Modelos (`.joblib`) incluídos em `src/models/`
-- [ ] Dados mínimos de exemplo no diretório `data/`
-- [ ] Este `README.md` atualizado e claro para avaliadores
-
+- The app uses a locally trained model (.joblib)  
+- Metrics were removed from the app to avoid inconsistencies  
+- Model evaluation is available in the notebook (analytics.ipynb)  
 
 ---
 
-**Obrigado!** ✨
+##  Author
+
+Luís Parra  
+Data Analyst focused on Machine Learning and Data Products
