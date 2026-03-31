@@ -1,6 +1,11 @@
 from pathlib import Path
 import streamlit as st
 
+st.set_page_config(
+    page_title="Obesity Risk Prediction System",
+    layout="wide"
+)
+
 from src.shared.connection import init_db
 from src.models.production_pipeline import load_model
 
@@ -10,16 +15,6 @@ from src.models.production_pipeline import load_model
 BASE_DIR = Path(__file__).resolve().parent.parent
 MODEL_PATH = BASE_DIR / "src" / "models" / "xgb_model.joblib"
 
-if not MODEL_PATH.exists():
-    st.error("Nenhum modelo encontrado.")
-    st.stop()
-
-model = st.session_state.get("model", None)
-
-if model is None:
-    st.error("Modelo não carregado.")
-    st.stop()
-    
 DB_PATH = BASE_DIR / "patients.db"
 
 st.session_state.DB_PATH = DB_PATH
@@ -28,13 +23,14 @@ st.session_state.DB_PATH = DB_PATH
 # APP CONFIGURATION
 
 def configure_app():
-    st.set_page_config(
-        page_title="Obesity Risk Prediction System",
-        layout="wide"
-    )
+    pass  # já configurado no topo
 
 
 def load_resources():
+    if not MODEL_PATH.exists():
+        st.error("Nenhum modelo encontrado.")
+        st.stop()
+
     if "model" not in st.session_state:
         st.session_state.model = load_model(str(MODEL_PATH))
 
@@ -69,12 +65,11 @@ def apply_theme():
     )
 
 
-
 def main():
     configure_app()
     load_resources()
     apply_theme()
-    
+
 
 if __name__ == "__main__":
     main()
