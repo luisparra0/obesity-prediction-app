@@ -61,10 +61,10 @@ def apply_theme():
 
 def run_navigation():
     pages = [
-        st.Page("src/pages/Home.py", title="Home"),
-        st.Page("src/pages/Prever.py", title="Predict"),
-        st.Page("src/pages/Historico.py", title="History"),
-        st.Page("src/pages/Dashboard.py", title="EDA"),
+        st.Page("pages/Home.py", title="Home"),
+        st.Page("pages/Prever.py", title="Predict"),
+        st.Page("pages/Historico.py", title="History"),
+        st.Page("pages/Dashboard.py", title="EDA"),
     ]
 
     navigation = st.navigation(pages)
