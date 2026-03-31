@@ -6,7 +6,9 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 from datetime import datetime
-from shared.paths import DATA_DIR
+
+from src.shared.paths import DATA_DIR
+from src.shared import utils
 
 # ============================================================
 # CONFIGURAÇÃO DA PÁGINA

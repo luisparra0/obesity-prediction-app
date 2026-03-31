@@ -1,8 +1,5 @@
-"""Streamlit application for obesity risk prediction."""
-
 from pathlib import Path
 import streamlit as st
-import joblib
 
 from src.shared.connection import init_db
 from src.models.production_pipeline import load_model
@@ -10,17 +7,15 @@ from src.models.production_pipeline import load_model
 
 # PATH CONFIGURATION
 
-
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
 
 MODEL_PATH = BASE_DIR / "src" / "models" / "xgb_model.joblib"
-DB_PATH = BASE_DIR / "data" / "patients.db"
+DB_PATH = BASE_DIR / "patients.db"
 
 st.session_state.DB_PATH = DB_PATH
 
 
 # APP CONFIGURATION
-
 
 def configure_app():
     st.set_page_config(
@@ -31,13 +26,12 @@ def configure_app():
 
 def load_resources():
     if "model" not in st.session_state:
-        st.session_state.model = load_model(str(MODEL_PATH))
+        st.session_state.model = load_model(MODEL_PATH)
 
     if "db_initialized" not in st.session_state:
         init_db(DB_PATH)
         st.session_state.db_initialized = True
 
-    # 👇 ADICIONA ISSO AQUI
     if "HOSPITAL_NAME" not in st.session_state:
         st.session_state.HOSPITAL_NAME = "Sistema de Avaliação Preventiva"
 
@@ -49,10 +43,6 @@ def load_resources():
 
     if "ACCENT_COLOR" not in st.session_state:
         st.session_state.ACCENT_COLOR = (0, 0, 0)
-
-
-
-# THEME (SIMPLIFIED)
 
 
 def apply_theme():
@@ -69,25 +59,17 @@ def apply_theme():
     )
 
 
-
-# NAVIGATION
-
-
 def run_navigation():
     pages = [
-        st.Page("pages/Home.py", title="Home"),
-        st.Page("pages/Prever.py", title="Predict"),
-        st.Page("pages/Historico.py", title="History"),
-        st.Page("pages/Dashboard.py", title="EDA"),
+        st.Page("src/pages/Home.py", title="Home"),
+        st.Page("src/pages/Prever.py", title="Predict"),
+        st.Page("src/pages/Historico.py", title="History"),
+        st.Page("src/pages/Dashboard.py", title="EDA"),
     ]
 
     navigation = st.navigation(pages)
     navigation.run()
 
-
-# =============================
-# MAIN
-# =============================
 
 def main():
     configure_app()

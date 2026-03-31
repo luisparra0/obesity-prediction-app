@@ -1,5 +1,6 @@
 import streamlit as st
-import shared.utils as utils
+from src.shared import utils
+from src.shared.paths import DATA_DIR
 
 def render_home():
     st.image(utils.create_logo())

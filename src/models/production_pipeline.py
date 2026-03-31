@@ -3,26 +3,27 @@ import joblib
 import pickle
 import numpy as np
 
-# carregamento do modelo
-def load_model(model_path: str):
+
+# =========================
+# LOAD MODEL
+# =========================
+def load_model(model_path):
     """Carrega modelo salvo (.joblib ou .pkl)."""
+    model_path = str(model_path)
+
     if model_path.endswith(".joblib"):
-        model = joblib.load(model_path)
+        return joblib.load(model_path)
     elif model_path.endswith(".pkl"):
         with open(model_path, "rb") as f:
-            model = pickle.load(f)
+            return pickle.load(f)
     else:
         raise ValueError("Formato inválido. Use .joblib ou .pkl")
-    return model
 
-# processamento de input
+
+# =========================
+# PREPROCESS INPUT
+# =========================
 def preprocess_input(input_dict: dict) -> pd.DataFrame:
-    """
-    Recebe um dicionário de dados brutos e já converte para DataFrame
-    conforme esperado pelo modelo treinado.
-    """
-
-    # Renomear colunas — MESMO USADO NO TREINO
     column_name = {
         'Gender': 'sexo',
         'Age': 'idade',
@@ -45,71 +46,80 @@ def preprocess_input(input_dict: dict) -> pd.DataFrame:
 
     df = pd.DataFrame([input_dict]).rename(columns=column_name)
 
-    # Map Yes/No
+    # YES/NO
     yes_no_cols = ['hist_familiar_obes', 'cons_altas_cal_freq', 'fuma', 'controle_calorias']
     for c in yes_no_cols:
-        if c in df:
-            df[c] = df[c].map({'yes': 1, 'no': 0}).copy()
+        if c in df.columns:
+            df[c] = df[c].map({'yes': 1, 'no': 0})
 
-    # Sexo → 0/1
-    if "sexo" in df:
-        df["sexo"] = df["sexo"].map({'Female': 0, 'Male': 1}).copy()
+    # SEXO
+    if "sexo" in df.columns:
+        df["sexo"] = df["sexo"].map({'Female': 0, 'Male': 1})
 
-    # Arredondamentos
+    # ARREDONDAMENTOS
     col_int = ['idade', 'cons_verduras', 'refeicoes_principais_dia', 'ativ_fisica', 'uso_tecnologia']
     for c in col_int:
-        if c in df:
+        if c in df.columns:
             df[c] = df[c].round(0)
 
-    if "agua_dia" in df:
+    if "agua_dia" in df.columns:
         df["agua_dia"] = df["agua_dia"].round().astype(int)
 
     for c in ['altura', 'peso']:
-        if c in df:
+        if c in df.columns:
             df[c] = df[c].round(2)
 
-    # Mapeamentos extras
+    # MAPEAMENTOS
     freq = {'no': 0, 'Sometimes': 0, 'Frequently': 1, 'Always': 1}
     ativ = {0: 0, 1: 0, 2: 1, 3: 1, 4: 1}
     transp = {'Automobile': 1, 'Motorbike': 1, 'Public_Transportation': 1, 'Bike': 0, 'Walking': 0}
 
-    df["lancha_entre_ref_bin"] = df["lancha_entre_ref"].map(freq)
-    df["cons_alcool_bin"] = df["cons_alcool"].map(freq)
-    df["ativ_fisica_bin"] = df["ativ_fisica"].map(ativ)
-    df["trasporte_bin"] = df["transporte"].map(transp)
+    if "lancha_entre_ref" in df.columns:
+        df["lancha_entre_ref_bin"] = df["lancha_entre_ref"].map(freq)
 
-    # Seleção igual ao treino
-    df = df[['hist_familiar_obes', 'cons_altas_cal_freq', 'cons_verduras',
-                'refeicoes_principais_dia', 'lancha_entre_ref_bin', 'fuma',
-                'agua_dia', 'controle_calorias', 'ativ_fisica_bin',
-                'uso_tecnologia', 'cons_alcool_bin', 'trasporte_bin']]
+    if "cons_alcool" in df.columns:
+        df["cons_alcool_bin"] = df["cons_alcool"].map(freq)
+
+    if "ativ_fisica" in df.columns:
+        df["ativ_fisica_bin"] = df["ativ_fisica"].map(ativ)
+
+    if "transporte" in df.columns:
+        df["transporte_bin"] = df["transporte"].map(transp)
+
+    # SELEÇÃO FINAL (igual treino)
+    cols_model = [
+        'hist_familiar_obes', 'cons_altas_cal_freq', 'cons_verduras',
+        'refeicoes_principais_dia', 'lancha_entre_ref_bin', 'fuma',
+        'agua_dia', 'controle_calorias', 'ativ_fisica_bin',
+        'uso_tecnologia', 'cons_alcool_bin', 'transporte_bin'
+    ]
+
+    df = df[cols_model]
 
     return df
 
-# Previsão em produção
-def predict_from_input(model, input_dict: dict):
-    """
-    Produção: recebe o dict bruto, preprocessa e roda a predição.
-    Retorna resposta amigável para o usuário.
-    """
-    df_processed = preprocess_input(input_dict)
-    pred_raw = model.predict(df_processed)[0]
-    prob = None
 
-    # Probabilidade (se disponível)
+# =========================
+# PREDICT
+# =========================
+def predict_from_input(model, input_dict: dict):
+    df_processed = preprocess_input(input_dict)
+
+    pred_raw = model.predict(df_processed)[0]
+
+    prob = None
     if hasattr(model, "predict_proba"):
-        prob = model.predict_proba(df_processed)[0][1]   # probância de classe = 1
-    
-    # Tradução do resultado
+        prob = model.predict_proba(df_processed)[0][1]
+
     if pred_raw == 1:
         msg = "⚠️ Há indícios de que pode ter obesidade."
     else:
         msg = "✅ Baixa probabilidade de obesidade."
 
-    # Probabilidade formatada
     if prob is not None:
-        prob_msg = f"Probabilidade estimada: {prob:.2%}"
-        return {"mensagem": msg, "probabilidade": prob_msg}
-    else:
-        return {"mensagem": msg}
+        return {
+            "mensagem": msg,
+            "probabilidade": f"{prob:.2%}"
+        }
 
+    return {"mensagem": msg}

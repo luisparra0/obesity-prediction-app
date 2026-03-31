@@ -12,9 +12,10 @@ import glob
 import base64
 import re
 from typing import Any, Callable, Mapping, Optional
-import shared.utils as utils
-import shared.plots as plots
-import shared.connection as connection
+from src.shared import utils
+from src.shared.paths import DATA_DIR
+from src.shared import plots
+import src.shared.connection as connection
 
 import streamlit as st
 
