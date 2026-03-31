@@ -7,9 +7,19 @@ from src.models.production_pipeline import load_model
 
 # PATH CONFIGURATION
 
-BASE_DIR = Path(__file__).resolve().parent
-
+BASE_DIR = Path(__file__).resolve().parent.parent
 MODEL_PATH = BASE_DIR / "src" / "models" / "xgb_model.joblib"
+
+if not MODEL_PATH.exists():
+    st.error("Nenhum modelo encontrado.")
+    st.stop()
+
+model = st.session_state.get("model", None)
+
+if model is None:
+    st.error("Modelo não carregado.")
+    st.stop()
+    
 DB_PATH = BASE_DIR / "patients.db"
 
 st.session_state.DB_PATH = DB_PATH
@@ -26,13 +36,13 @@ def configure_app():
 
 def load_resources():
     if "model" not in st.session_state:
-        st.session_state.model = load_model(MODEL_PATH)
+        st.session_state.model = load_model(str(MODEL_PATH))
 
     if "db_initialized" not in st.session_state:
         init_db(DB_PATH)
         st.session_state.db_initialized = True
-
-    if "HOSPITAL_NAME" not in st.session_state:
+        
+    if "nome_hospital" not in st.session_state:
         st.session_state.nome_hospital = "Sistema de Avaliação Preventiva"
 
     if "LOGO_PATH" not in st.session_state:
