@@ -33,7 +33,7 @@ def load_resources():
         st.session_state.db_initialized = True
 
     if "HOSPITAL_NAME" not in st.session_state:
-        st.session_state.HOSPITAL_NAME = "Sistema de Avaliação Preventiva"
+        st.session_state.nome_hospital = "Sistema de Avaliação Preventiva"
 
     if "LOGO_PATH" not in st.session_state:
         st.session_state.LOGO_PATH = "logo.png"
