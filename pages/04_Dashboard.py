@@ -13,6 +13,9 @@ from src.shared import utils
 # ============================================================
 # CONFIGURAÇÃO DA PÁGINA
 # ============================================================
+st.title("Obesity Risk Prediction System")
+st.markdown("Use o menu lateral para navegar pelas funcionalidades.")
+
 st.set_page_config(
     page_title="Dashboard de Saúde - Análise de Obesidade",
     page_icon="🏥",

@@ -4,5 +4,18 @@ st.header('Sobre')
 
 nome = st.session_state.get("nome_hospital", "Sistema")
 
-st.write(f"Este sistema foi desenvolvido para {nome} como protótipo de suporte à triagem clínica.")
-st.write('Funcionalidades: gráfico de risco, geração de PDF, histórico em sqlite, autenticação simples e recomendações nutricionais básicas.')
+st.markdown(f"""
+O **{nome}** é uma aplicação de Machine Learning desenvolvida para apoiar a triagem clínica e identificar riscos de obesidade com base em dados comportamentais e hábitos de vida.
+
+###  Objetivo
+Auxiliar profissionais de saúde na tomada de decisão preventiva, fornecendo:
+- Estimativa de risco de obesidade
+- Recomendações nutricionais automatizadas
+- Geração de relatórios em PDF
+- Histórico de avaliações
+
+###  Tecnologias
+- Python (Pandas, Scikit-learn, XGBoost)
+- Streamlit
+- SQLite
+""")
