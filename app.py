@@ -59,24 +59,12 @@ def apply_theme():
     )
 
 
-def run_navigation():
-    pages = [
-        st.Page("pages/Home.py", title="Home"),
-        st.Page("pages/Prever.py", title="Predict"),
-        st.Page("pages/Historico.py", title="History"),
-        st.Page("pages/Dashboard.py", title="EDA"),
-    ]
-
-    navigation = st.navigation(pages)
-    navigation.run()
-
 
 def main():
     configure_app()
     load_resources()
     apply_theme()
-    run_navigation()
-
+    
 
 if __name__ == "__main__":
     main()
